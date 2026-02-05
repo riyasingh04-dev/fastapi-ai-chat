@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AI Trainer Chat</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="chat-container">
+
+        <header>
+            <h2>AI Trainer Chat</h2>
+            <button class="clear-btn" onclick="confirmClear()" title="Clears conversation memory">
+                Clear Session
+            </button>
+
+        </header>
+
+        <div class="role-tabs">
+            <button class="active" onclick="setRole(this,'teacher')">Teacher AI</button>
+            <button onclick="setRole(this,'interviewer')">Interviewer AI</button>
+            <button onclick="setRole(this,'debugger')">Debugger AI</button>
+        </div>
+
+        <div id="chat-box"></div>
+
+        <div class="input-container">
+            <div class="input-area">
+                <input id="user-input" placeholder="Type your message..." autocomplete="off" />
+                <button class="send" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let role = "teacher";
+
+        function setRole(btn, r) {
+            role = r;
+            document.querySelectorAll(".role-tabs button")
+                .forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+        }
+
+        document.getElementById("user-input").addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const input = document.getElementById("user-input");
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chat = document.getElementById("chat-box");
+            chat.innerHTML += `<div class="bubble user">${formatText(msg)}</div>`;
+            input.value = "";
+            chat.scrollTop = chat.scrollHeight;
+
+            const res = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: msg, role })
+            });
+
+            const data = await res.json();
+
+            chat.innerHTML += `
+        <div class="bubble bot">
+            ${formatText(data.reply)}
+            <div class="token-info">
+                In: ${data.input_words} | Out: ${data.output_words}
+            </div>
+        </div>
+    `;
+
+            chat.scrollTop = chat.scrollHeight;
+            input.focus();
+        }
+
+        async function confirmClear() {
+            const ok = confirm(
+                "Are you sure you want to clear the session?\n\nThis will erase the conversation memory."
+            );
+            if (!ok) return;
+
+            await clearChat();
+        }
+
+        async function clearChat() {
+            await fetch("/clear", { method: "POST" });
+            document.getElementById("chat-box").innerHTML = "";
+        }
+
+        function formatText(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/\n/g, "<br>");
+        }
+    </script>
+
+</body>
+
+</html>

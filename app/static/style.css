@@ -1,0 +1,298 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
+
+/* 
+   Golden Ratio (Phi) ≈ 1.618 
+   Base Unit: 1rem (16px)
+   Scale: 
+   - xs: 10px (~ 1/1.618)
+   - sm: 12px
+   - md: 16px (Base)
+   - lg: 26px (~ 16 * 1.618)
+   - xl: 42px (~ 26 * 1.618)
+*/
+
+:root {
+    /* Lighter, Golden-Classy Theme */
+    --bg-color: #fdfbf7;
+    /* Warm creamy white */
+    --card-bg: rgba(255, 255, 255, 0.75);
+    --primary: #c19a6b;
+    /* Muted Gold / Bronze */
+    --primary-hover: #a67c52;
+    --text-main: #2d3436;
+    /* Soft charcoal */
+    --text-muted: #636e72;
+    --border: rgba(193, 154, 107, 0.25);
+    /* Golden tint border */
+    --shadow-soft: 0 16px 42px -10px rgba(193, 154, 107, 0.15);
+    --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+    --bubble-user: linear-gradient(135deg, #d4af37, #c19a6b);
+    /* Gradient Gold */
+    --bubble-bot: #ffffff;
+
+    --phi: 1.618;
+    --radius-lg: 26px;
+    /* 16 * 1.618 */
+    --radius-md: 16px;
+    --radius-sm: 10px;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: var(--bg-color);
+    background-image:
+        radial-gradient(at 0% 0%, rgba(193, 154, 107, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(193, 154, 107, 0.08) 0px, transparent 50%);
+    font-family: 'Outfit', sans-serif;
+    
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.chat-container {
+    width: 90vw;
+    max-width: 1000px;
+    /* Comfortable reading width */
+    height: 85vh;
+    /* Golden ratio relation to viewport height roughly */
+    background: var(--card-bg);
+    backdrop-filter: blur(26px);
+    /* Strong blur for glassy feel */
+    -webkit-backdrop-filter: blur(26px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Header */
+header {
+    padding: 26px 42px;
+    /* Golden ratio steps */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.6);
+}
+
+header h2 {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.618rem;
+    /* Golden scale */
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+}
+
+.clear-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    color: #e17055;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clear-btn:hover {
+    background: rgba(225, 112, 85, 0.1);
+    border-color: #e17055;
+}
+
+/* Role Tabs */
+.role-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 16px 42px 0;
+}
+
+.role-tabs button {
+    flex: 1;
+    /* Distribute evenly */
+    max-width: 200px;
+    padding: 12px 0;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.role-tabs button:hover {
+    color: var(--primary);
+    background: rgba(193, 154, 107, 0.05);
+}
+
+.role-tabs button.active {
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+    background: linear-gradient(to top, rgba(193, 154, 107, 0.05), transparent);
+}
+
+/* Chat Box */
+#chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 42px;
+    /* Spacious padding */
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    /* Golden gap */
+    scroll-behavior: smooth;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Scrollbar styling */
+#chat-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-box::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#chat-box::-webkit-scrollbar-thumb {
+    background: rgba(193, 154, 107, 0.3);
+    border-radius: 100px;
+}
+
+#chat-box::-webkit-scrollbar-thumb:hover {
+    background: rgba(193, 154, 107, 0.5);
+}
+
+/* Bubbles */
+.bubble {
+    padding: 20px 26px;
+    border-radius: var(--radius-lg);
+    max-width: 75%;
+    /* Approx 1/phi of width */
+    font-size: 1rem;
+    line-height: 1.618;
+    /* Perfect line height */
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user {
+    align-self: flex-end;
+    background: var(--bubble-user);
+    color: white;
+    border-bottom-right-radius: 4px;
+    /* Subtle assymetry */
+}
+
+.bot {
+    align-self: flex-start;
+    background: var(--bubble-bot);
+    color: var(--text-main);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    border-bottom-left-radius: 4px;
+}
+
+.bot strong {
+    color: #a67c52;
+    /* Darker gold for emphasis */
+}
+
+.bot em {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Token Info */
+.token-info {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+    text-align: right;
+    font-feature-settings: "tnum";
+}
+
+/* Input Area */
+.input-container {
+    padding: 26px 42px;
+    background: rgba(255, 255, 255, 0.8);
+    border-top: 1px solid var(--border);
+}
+
+.input-area {
+    display: flex;
+    gap: 16px;
+    position: relative;
+    background: white;
+    padding: 8px;
+    border-radius: var(--radius-lg);
+    /* Pill shape container */
+    box-shadow: var(--shadow-inset), 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+}
+
+input {
+    flex: 1;
+    padding: 16px 20px;
+    font-size: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    outline: none;
+    font-family: inherit;
+}
+
+input::placeholder {
+    color: #b2bec3;
+}
+
+button.send {
+    padding: 0 32px;
+    font-size: 1rem;
+    font-weight: 500;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    /* Slightly smaller radius inside */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(193, 154, 107, 0.3);
+}
+
+button.send:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(193, 154, 107, 0.4);
+}
+
+button.send:active {
+    transform: translateY(1px);
+}

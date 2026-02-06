@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login - AI Chat</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            padding: 48px;
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            margin-bottom: 32px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            color: var(--text-main);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .auth-form input {
+            padding: 16px 20px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .auth-form input:focus {
+            border-color: var(--primary);
+        }
+
+        .auth-form button {
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .auth-form button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .google-login {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 24px;
+            padding: 14px;
+            background: white;
+            color: #1f2937;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .google-login:hover {
+            background: #f3f4f6;
+            transform: translateY(-1px);
+        }
+
+        .toggle-auth {
+            text-align: center;
+            margin-top: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-auth:hover {
+            color: var(--primary);
+        }
+
+        hr {
+            margin: 32px 0;
+            border: none;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-card">
+        <h1 class="auth-title" id="auth-title">Welcome Back</h1>
+
+        <form id="login-form" class="auth-form">
+            <input type="email" id="email" placeholder="Email Address" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Sign In</button>
+        </form>
+
+        <form id="signup-form" class="auth-form" style="display: none;">
+            <input type="text" id="signup-name" placeholder="Full Name" required>
+            <input type="email" id="signup-email" placeholder="Email Address" required>
+            <input type="password" id="signup-password" placeholder="Password" required>
+            <button type="submit">Create Account</button>
+        </form>
+
+        <div class="toggle-auth" onclick="toggleAuth()" id="toggle-text">New here? Create an account</div>
+
+        <hr>
+        <a href="/auth/google" class="google-login">
+            <svg width="20" height="20" viewBox="0 0 48 48">
+                <path fill="#EA4335"
+                    d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                <path fill="#4285F4"
+                    d="M46.98 24.55c0-1.57-.15-3.13-.45-4.69H24v9.07h12.91c-.58 3.33-2.44 6.17-5.22 8.04l8.11 6.3c4.74-4.37 7.49-10.82 7.49-18.72z" />
+                <path fill="#FBBC05"
+                    d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                <path fill="#34A853"
+                    d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-8.11-6.3c-2.21 1.51-5.04 2.42-7.78 2.42-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                <path fill="none" d="M0 0h48v48H0z" />
+            </svg>
+            Continue with Google
+        </a>
+    </div>
+
+    <script>
+        function toggleAuth() {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const title = document.getElementById('auth-title');
+            const toggleText = document.getElementById('toggle-text');
+
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'flex';
+                signupForm.style.display = 'none';
+                title.innerText = 'Welcome Back';
+                toggleText.innerText = "New here? Create an account";
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'flex';
+                title.innerText = 'Join AI Chat';
+                toggleText.innerText = "Already have an account? Sign In";
+            }
+        }
+
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('username', document.getElementById('email').value);
+            formData.append('password', document.getElementById('password').value);
+
+            const res = await fetch('/auth/login', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                window.location.href = `/auth/set_session?token=${data.access_token}&email=${document.getElementById('email').value}`;
+            } else {
+                alert('Authentication failed. Please check your credentials.');
+            }
+        };
+
+        document.getElementById('signup-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('signup-name').value,
+                email: document.getElementById('signup-email').value,
+                password: document.getElementById('signup-password').value
+            };
+
+            const res = await fetch('/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert('Account created! You can now sign in.');
+                toggleAuth();
+            } else {
+                const err = await res.json();
+                alert('Signup failed: ' + err.detail);
+            }
+        };
+    </script>
+</body>
+
+</html>

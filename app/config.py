@@ -26,3 +26,13 @@ def get_secret_key() -> str:
     if not secret_key:
         raise ValueError("SECRET_KEY not found in .env file")
     return secret_key
+
+def get_db_url() -> str:
+    user = os.getenv("MYSQL_USER")
+    password = os.getenv("MYSQL_PASSWORD")
+    host = os.getenv("MYSQL_HOST")
+    port = os.getenv("MYSQL_PORT")
+    db = os.getenv("MYSQL_DB")
+    if not all([user, password, host, port, db]):
+        raise ValueError("MySQL configuration missing in .env file")
+    return f"mysql+pymysql://{user}:{password}@{host}:{port}/{db}"

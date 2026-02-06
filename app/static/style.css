@@ -12,27 +12,26 @@
 */
 
 :root {
-    /* Lighter, Golden-Classy Theme */
+    /* Golden-Classy Theme */
     --bg-color: #fdfbf7;
     /* Warm creamy white */
-    --card-bg: rgba(255, 255, 255, 0.75);
+    --card-bg: rgba(255, 255, 255, 0.8);
     --primary: #c19a6b;
     /* Muted Gold / Bronze */
     --primary-hover: #a67c52;
+    --accent: #d4af37;
+    /* Brighter Gold */
     --text-main: #2d3436;
     /* Soft charcoal */
     --text-muted: #636e72;
     --border: rgba(193, 154, 107, 0.25);
-    /* Golden tint border */
     --shadow-soft: 0 16px 42px -10px rgba(193, 154, 107, 0.15);
     --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.02);
     --bubble-user: linear-gradient(135deg, #d4af37, #c19a6b);
-    /* Gradient Gold */
     --bubble-bot: #ffffff;
 
     --phi: 1.618;
     --radius-lg: 26px;
-    /* 16 * 1.618 */
     --radius-md: 16px;
     --radius-sm: 10px;
 }
@@ -42,10 +41,9 @@ body {
     height: 100vh;
     background: var(--bg-color);
     background-image:
-        radial-gradient(at 0% 0%, rgba(193, 154, 107, 0.08) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(193, 154, 107, 0.08) 0px, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(193, 154, 107, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(212, 175, 55, 0.08) 0px, transparent 50%);
     font-family: 'Outfit', sans-serif;
-
     color: var(--text-main);
     display: flex;
     justify-content: center;
@@ -54,15 +52,12 @@ body {
 }
 
 .chat-container {
-    width: 90vw;
-    max-width: 1000px;
-    /* Comfortable reading width */
-    height: 85vh;
-    /* Golden ratio relation to viewport height roughly */
+    width: 95vw;
+    max-width: 1200px;
+    height: 90vh;
     background: var(--card-bg);
-    backdrop-filter: blur(26px);
-    /* Strong blur for glassy feel */
-    -webkit-backdrop-filter: blur(26px);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-soft);
@@ -75,8 +70,7 @@ body {
 
 /* Header */
 header {
-    padding: 26px 42px;
-    /* Golden ratio steps */
+    padding: 24px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -159,30 +153,24 @@ header h2 {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 22px;
-    background: rgba(193, 154, 107, 0.08);
-    /* Sophisticated glass fill */
+    padding: 10px 20px;
+    background: rgba(99, 102, 241, 0.1);
     color: var(--primary);
     text-decoration: none;
-    border: 1.5px solid rgba(193, 154, 107, 0.3);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: 0 4px 12px rgba(193, 154, 107, 0.05);
-}
-
-.logout-icon {
-    transition: transform 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .logout-btn:hover {
     background: var(--primary);
     color: white;
     border-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(193, 154, 107, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.5);
 }
 
 .logout-btn:hover .logout-icon {
@@ -337,7 +325,6 @@ header h2 {
     background: white;
     padding: 8px;
     border-radius: var(--radius-lg);
-    /* Pill shape container */
     box-shadow: var(--shadow-inset), 0 10px 25px -5px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border);
 }

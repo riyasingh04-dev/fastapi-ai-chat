@@ -1,9 +1,15 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
 from starlette.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth
 from app.config import get_google_client_id, get_google_client_secret
+from app.database import get_db
+from app.models import User
+from app.utils import get_password_hash, verify_password, create_access_token
+from pydantic import BaseModel, EmailStr
 
-router = APIRouter()
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 oauth = OAuth()
 
@@ -26,30 +32,111 @@ def register_oauth():
 
 register_oauth()
 
-@router.get("/auth/google")
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+
+@router.post("/signup")
+async def signup(user_data: UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == user_data.email).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    new_user = User(
+        email=user_data.email,
+        name=user_data.name,
+        hashed_password=get_password_hash(user_data.password),
+        auth_provider="local"
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return {"message": "User created successfully"}
+
+@router.post("/token")
+@router.post("/login")
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == form_data.username).first()
+    if not user or not user.hashed_password or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
+    access_token = create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/google")
 async def login_google(request: Request):
     google = oauth.create_client('google')
     redirect_uri = request.url_for('auth_callback')
     return await google.authorize_redirect(request, redirect_uri)
 
-@router.get("/auth/callback")
-async def auth_callback(request: Request):
+@router.get("/callback")
+async def auth_callback(request: Request, db: Session = Depends(get_db)):
     try:
         google = oauth.create_client('google')
         token = await google.authorize_access_token(request)
-        user = token.get('userinfo')
-        if not user:
-            # Fallback if userinfo is not in token (depends on provider/scope)
-            user = await google.userinfo(token=token)
+        user_info = token.get('userinfo')
+        if not user_info: 
+            user_info = await google.userinfo(token=token)
             
-        request.session['user'] = dict(user)
+        email = user_info.get('email')
+        google_id = user_info.get('sub')
+        name = user_info.get('name')
+
+        db_user = db.query(User).filter(User.email == email).first()
+        if not db_user:
+            db_user = User(
+                email=email,
+                google_id=google_id,
+                name=name,
+                auth_provider="google"
+            )
+            db.add(db_user)
+            db.commit()
+            db.refresh(db_user)
+        elif not db_user.google_id:
+            # If user exists (e.g. via local) but is logging in via google for the first time
+            db_user.google_id = google_id
+            db_user.auth_provider = "google" # or strictly both, but let's stick to the prompt
+            db.commit()
+
+        # Create JWT for Google user as well
+        access_token = create_access_token(data={"sub": db_user.email})
+        
+        # Store in session for easy UI access or redirect with token in fragment
+        request.session['user'] = {
+            "email": db_user.email, 
+            "name": db_user.name,
+            "picture": user_info.get('picture')
+        }
+        request.session['token'] = access_token
+        
         return RedirectResponse(url='/')
     except Exception as e:
         print(f"OAuth Error details: {repr(e)}")
-        # In production, handle errors more gracefully (log them, show error page)
         raise HTTPException(status_code=400, detail=f"OAuth failed: {repr(e)}")
+
+from fastapi.templating import Jinja2Templates
+
+templates = Jinja2Templates(directory="app/templates")
+
+@router.get("/login")
+async def login_page(request: Request):
+    if request.session.get('user'):
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@router.get("/set_session")
+async def set_session(request: Request, token: str, email: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    request.session['user'] = {"email": user.email, "name": user.name}
+    request.session['token'] = token
+    return RedirectResponse(url='/')
 
 @router.get("/logout")
 async def logout(request: Request):
-    request.session.pop('user', None)
-    return RedirectResponse(url='/auth/google')
+    request.session.clear()
+    return RedirectResponse(url='/auth/login')

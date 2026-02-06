@@ -45,7 +45,7 @@ body {
         radial-gradient(at 0% 0%, rgba(193, 154, 107, 0.08) 0px, transparent 50%),
         radial-gradient(at 100% 100%, rgba(193, 154, 107, 0.08) 0px, transparent 50%);
     font-family: 'Outfit', sans-serif;
-    
+
     color: var(--text-main);
     display: flex;
     justify-content: center;
@@ -84,6 +84,48 @@ header {
     background: rgba(255, 255, 255, 0.6);
 }
 
+.header-actions {
+    display: flex;
+    gap: 26px;
+    align-items: center;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-right: 26px;
+    border-right: 1px solid var(--border);
+}
+
+.avatar {
+    width: 42px;
+    height: 42px;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
+    box-shadow: 0 4px 15px rgba(193, 154, 107, 0.25);
+    transition: transform 0.3s ease;
+}
+
+.avatar:hover {
+    transform: scale(1.05);
+}
+
+.user-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+    letter-spacing: -0.01em;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
 header h2 {
     margin: 0;
     font-weight: 500;
@@ -94,19 +136,61 @@ header h2 {
 }
 
 .clear-btn {
-    padding: 10px 20px;
-    background: transparent;
-    border: 1px solid rgba(220, 38, 38, 0.2);
+    padding: 10px 22px;
+    background: rgba(225, 112, 85, 0.03);
     color: #e17055;
+    border: 1.5px solid rgba(225, 112, 85, 0.15);
     border-radius: var(--radius-sm);
     font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .clear-btn:hover {
-    background: rgba(225, 112, 85, 0.1);
+    background: #e17055;
+    color: white;
     border-color: #e17055;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(225, 112, 85, 0.25);
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    background: rgba(193, 154, 107, 0.08);
+    /* Sophisticated glass fill */
+    color: var(--primary);
+    text-decoration: none;
+    border: 1.5px solid rgba(193, 154, 107, 0.3);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: 0 4px 12px rgba(193, 154, 107, 0.05);
+}
+
+.logout-icon {
+    transition: transform 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(193, 154, 107, 0.25);
+}
+
+.logout-btn:hover .logout-icon {
+    transform: translateX(3px);
+}
+
+.logout-btn:active {
+    transform: translateY(0);
 }
 
 /* Role Tabs */

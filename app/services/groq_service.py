@@ -102,7 +102,6 @@ def get_groq_response(user_message: str, role: str):
             elif h.startswith("AI: "):
                 messages.append({"role": "assistant", "content": h.replace("AI: ", "", 1)})
         
-        # Current Message
         messages.append({"role": "user", "content": user_message})
 
         chat_completion = client.chat.completions.create(
@@ -114,7 +113,6 @@ def get_groq_response(user_message: str, role: str):
 
         reply = chat_completion.choices[0].message.content
         
-        # Update Memory
         chat_memory.append(f"User: {user_message}")
         chat_memory.append(f"AI: {reply}")
 

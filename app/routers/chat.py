@@ -8,7 +8,6 @@ router = APIRouter()
 
 @router.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest, current_user: User = Depends(get_current_user)):
-    # You can now use current_user.email or current_user.name
     reply, in_w, out_w = get_groq_response(request.message, request.role)
     return ChatResponse(
         reply=reply,

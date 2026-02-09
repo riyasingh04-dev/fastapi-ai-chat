@@ -37,6 +37,9 @@ class UserCreate(BaseModel):
     password: str
     name: str
 
+class EmailLoginRequest(BaseModel):
+    email: EmailStr
+
 @router.post("/signup")
 async def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user_data.email).first()
@@ -60,6 +63,18 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     user = db.query(User).filter(User.email == form_data.username).first()
     if not user or not user.hashed_password or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
+    access_token = create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/email-login")
+async def email_login(login_data: EmailLoginRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == login_data.email).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    
+    if user.auth_provider != "google":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password required for this account")
     
     access_token = create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
@@ -95,15 +110,12 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
             db.commit()
             db.refresh(db_user)
         elif not db_user.google_id:
-            # If user exists (e.g. via local) but is logging in via google for the first time
             db_user.google_id = google_id
-            db_user.auth_provider = "google" # or strictly both, but let's stick to the prompt
+            db_user.auth_provider = "google" 
             db.commit()
 
-        # Create JWT for Google user as well
         access_token = create_access_token(data={"sub": db_user.email})
         
-        # Store in session for easy UI access or redirect with token in fragment
         request.session['user'] = {
             "email": db_user.email, 
             "name": db_user.name,

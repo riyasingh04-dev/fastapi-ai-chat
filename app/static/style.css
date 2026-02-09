@@ -12,17 +12,12 @@
 */
 
 :root {
-    /* Golden-Classy Theme */
     --bg-color: #fdfbf7;
-    /* Warm creamy white */
     --card-bg: rgba(255, 255, 255, 0.8);
     --primary: #c19a6b;
-    /* Muted Gold / Bronze */
     --primary-hover: #a67c52;
     --accent: #d4af37;
-    /* Brighter Gold */
     --text-main: #2d3436;
-    /* Soft charcoal */
     --text-muted: #636e72;
     --border: rgba(193, 154, 107, 0.25);
     --shadow-soft: 0 16px 42px -10px rgba(193, 154, 107, 0.15);
@@ -68,7 +63,6 @@ body {
     transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Header */
 header {
     padding: 24px 40px;
     display: flex;
@@ -181,7 +175,6 @@ header h2 {
     transform: translateY(0);
 }
 
-/* Role Tabs */
 .role-tabs {
     display: flex;
     justify-content: center;
@@ -191,7 +184,6 @@ header h2 {
 
 .role-tabs button {
     flex: 1;
-    /* Distribute evenly */
     max-width: 200px;
     padding: 12px 0;
     background: transparent;
@@ -216,21 +208,17 @@ header h2 {
     background: linear-gradient(to top, rgba(193, 154, 107, 0.05), transparent);
 }
 
-/* Chat Box */
 #chat-box {
     flex: 1;
     overflow-y: auto;
     padding: 42px;
-    /* Spacious padding */
     display: flex;
     flex-direction: column;
     gap: 26px;
-    /* Golden gap */
     scroll-behavior: smooth;
     background: rgba(255, 255, 255, 0.3);
 }
 
-/* Scrollbar styling */
 #chat-box::-webkit-scrollbar {
     width: 6px;
 }
@@ -248,15 +236,13 @@ header h2 {
     background: rgba(193, 154, 107, 0.5);
 }
 
-/* Bubbles */
+
 .bubble {
     padding: 20px 26px;
     border-radius: var(--radius-lg);
     max-width: 75%;
-    /* Approx 1/phi of width */
     font-size: 1rem;
     line-height: 1.618;
-    /* Perfect line height */
     position: relative;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
     animation: fadeIn 0.4s ease-out;
@@ -279,7 +265,6 @@ header h2 {
     background: var(--bubble-user);
     color: white;
     border-bottom-right-radius: 4px;
-    /* Subtle assymetry */
 }
 
 .bot {
@@ -292,7 +277,6 @@ header h2 {
 
 .bot strong {
     color: #a67c52;
-    /* Darker gold for emphasis */
 }
 
 .bot em {
@@ -300,7 +284,6 @@ header h2 {
     font-style: italic;
 }
 
-/* Token Info */
 .token-info {
     display: block;
     margin-top: 10px;
@@ -311,7 +294,6 @@ header h2 {
     font-feature-settings: "tnum";
 }
 
-/* Input Area */
 .input-container {
     padding: 26px 42px;
     background: rgba(255, 255, 255, 0.8);
@@ -352,7 +334,6 @@ button.send {
     color: white;
     border: none;
     border-radius: var(--radius-md);
-    /* Slightly smaller radius inside */
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 10px rgba(193, 154, 107, 0.3);

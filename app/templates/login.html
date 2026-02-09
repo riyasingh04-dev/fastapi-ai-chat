@@ -114,7 +114,7 @@
 
         <form id="login-form" class="auth-form">
             <input type="email" id="email" placeholder="Email Address" required>
-            <input type="password" id="password" placeholder="Password" required>
+            <input type="password" id="password" placeholder="Password (Optional for Google users)">
             <button type="submit">Sign In</button>
         </form>
 
@@ -166,20 +166,38 @@
 
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
-            const formData = new FormData();
-            formData.append('username', document.getElementById('email').value);
-            formData.append('password', document.getElementById('password').value);
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
-            const res = await fetch('/auth/login', {
-                method: 'POST',
-                body: formData
+            let url, method, body, headers;
+
+            if (password) {
+                url = '/auth/login';
+                method = 'POST';
+                const formData = new FormData();
+                formData.append('username', email);
+                formData.append('password', password);
+                body = formData;
+            } else {
+
+                url = '/auth/email-login';
+                method = 'POST';
+                headers = { 'Content-Type': 'application/json' };
+                body = JSON.stringify({ email: email });
+            }
+
+            const res = await fetch(url, {
+                method: method,
+                headers: headers,
+                body: body
             });
 
             if (res.ok) {
                 const data = await res.json();
-                window.location.href = `/auth/set_session?token=${data.access_token}&email=${document.getElementById('email').value}`;
+                window.location.href = `/auth/set_session?token=${data.access_token}&email=${email}`;
             } else {
-                alert('Authentication failed. Please check your credentials.');
+                const err = await res.json();
+                alert('Authentication failed: ' + (err.detail || 'Please check your credentials.'));
             }
         };
 

@@ -9,10 +9,9 @@ from app.config import get_secret_key
 from app.database import get_db
 from app import models
 
-# JWT configuration
 SECRET_KEY = get_secret_key()
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
 

@@ -125,10 +125,21 @@
             <button type="submit">Create Account</button>
         </form>
 
+        <form id="otp-form" class="auth-form" style="display: none;">
+            <div style="text-align: center; color: var(--text-muted); margin-bottom: 15px;">
+                Please enter the 6-digit code sent to <span id="display-email"
+                    style="color: var(--primary); font-weight: 600;"></span>
+            </div>
+            <input type="text" id="otp" placeholder="Enter 6-digit OTP" required maxlength="6" pattern="\d{6}"
+                style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5em;">
+            <button type="submit">Verify & Sign In</button>
+            <div class="toggle-auth" onclick="resetLogin()">Back to Login</div>
+        </form>
+
         <div class="toggle-auth" onclick="toggleAuth()" id="toggle-text">New here? Create an account</div>
 
-        <hr>
-        <a href="/auth/google" class="google-login">
+        <hr id="auth-divider">
+        <a href="/auth/google" class="google-login" id="google-btn">
             <svg width="20" height="20" viewBox="0 0 48 48">
                 <path fill="#EA4335"
                     d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
@@ -148,20 +159,40 @@
         function toggleAuth() {
             const loginForm = document.getElementById('login-form');
             const signupForm = document.getElementById('signup-form');
+            const otpForm = document.getElementById('otp-form');
             const title = document.getElementById('auth-title');
             const toggleText = document.getElementById('toggle-text');
+            const googleBtn = document.getElementById('google-btn');
+            const divider = document.getElementById('auth-divider');
 
-            if (loginForm.style.display === 'none') {
+            if (loginForm.style.display === 'none' && otpForm.style.display === 'none') {
                 loginForm.style.display = 'flex';
                 signupForm.style.display = 'none';
+                otpForm.style.display = 'none';
                 title.innerText = 'Welcome Back';
                 toggleText.innerText = "New here? Create an account";
+                toggleText.style.display = 'block';
+                googleBtn.style.display = 'flex';
+                divider.style.display = 'block';
             } else {
                 loginForm.style.display = 'none';
                 signupForm.style.display = 'flex';
+                otpForm.style.display = 'none';
                 title.innerText = 'Join AI Chat';
                 toggleText.innerText = "Already have an account? Sign In";
+                toggleText.style.display = 'block';
+                googleBtn.style.display = 'flex';
+                divider.style.display = 'block';
             }
+        }
+
+        function resetLogin() {
+            document.getElementById('otp-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'flex';
+            document.getElementById('toggle-text').style.display = 'block';
+            document.getElementById('google-btn').style.display = 'flex';
+            document.getElementById('auth-divider').style.display = 'block';
+            document.getElementById('auth-title').innerText = 'Welcome Back';
         }
 
         document.getElementById('login-form').onsubmit = async (e) => {
@@ -169,27 +200,56 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            let url, method, body, headers;
-
             if (password) {
-                url = '/auth/login';
-                method = 'POST';
+                // Regular Password Login
                 const formData = new FormData();
                 formData.append('username', email);
                 formData.append('password', password);
-                body = formData;
+
+                const res = await fetch('/auth/login', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    window.location.href = `/auth/set_session?token=${data.access_token}&email=${email}`;
+                } else {
+                    const err = await res.json();
+                    alert('Authentication failed: ' + (err.detail || 'Please check your credentials.'));
+                }
             } else {
+                // OTP Login Initiation
+                const res = await fetch('/auth/email-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
 
-                url = '/auth/email-login';
-                method = 'POST';
-                headers = { 'Content-Type': 'application/json' };
-                body = JSON.stringify({ email: email });
+                if (res.ok) {
+                    document.getElementById('login-form').style.display = 'none';
+                    document.getElementById('otp-form').style.display = 'flex';
+                    document.getElementById('display-email').innerText = email;
+                    document.getElementById('toggle-text').style.display = 'none';
+                    document.getElementById('google-btn').style.display = 'none';
+                    document.getElementById('auth-divider').style.display = 'none';
+                    document.getElementById('auth-title').innerText = 'Verify Identity';
+                } else {
+                    const err = await res.json();
+                    alert('Error: ' + (err.detail || 'Could not send OTP.'));
+                }
             }
+        };
 
-            const res = await fetch(url, {
-                method: method,
-                headers: headers,
-                body: body
+        document.getElementById('otp-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('display-email').innerText;
+            const otp = document.getElementById('otp').value;
+
+            const res = await fetch('/auth/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, otp: otp })
             });
 
             if (res.ok) {
@@ -197,7 +257,7 @@
                 window.location.href = `/auth/set_session?token=${data.access_token}&email=${email}`;
             } else {
                 const err = await res.json();
-                alert('Authentication failed: ' + (err.detail || 'Please check your credentials.'));
+                alert('Verification failed: ' + (err.detail || 'Invalid code.'));
             }
         };
 

@@ -16,4 +16,6 @@ class User(Base):
     hashed_password = Column(String(255), nullable=True)
     google_id = Column(String(255), unique=True, index=True, nullable=True)
     auth_provider = Column(String(50), default="local")
+    otp = Column(String(6), nullable=True)
+    otp_expiry = Column(DateTime, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -8,6 +8,9 @@ from app.database import get_db
 from app.models import User
 from app.utils import get_password_hash, verify_password, create_access_token
 from pydantic import BaseModel, EmailStr
+import random
+from datetime import datetime, timedelta
+from app.services.email_service import send_otp_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -39,6 +42,10 @@ class UserCreate(BaseModel):
 
 class EmailLoginRequest(BaseModel):
     email: EmailStr
+
+class OTPVerifyRequest(BaseModel):
+    email: EmailStr
+    otp: str
 
 @router.post("/signup")
 async def signup(user_data: UserCreate, db: Session = Depends(get_db)):
@@ -75,6 +82,50 @@ async def email_login(login_data: EmailLoginRequest, db: Session = Depends(get_d
     
     if user.auth_provider != "google":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password required for this account")
+    
+    # Generate 6-digit OTP
+    otp = str(random.randint(100000, 999999))
+    user.otp = otp
+    user.otp_expiry = datetime.now() + timedelta(minutes=5)
+    db.commit()
+    print(f"DEBUG: OTP for {user.email} is {otp}, expires at {user.otp_expiry}")
+    
+    # Send email
+    if send_otp_email(user.email, otp):
+        return {"message": "OTP sent to your email"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to send OTP email")
+
+@router.post("/verify-otp")
+async def verify_otp(verify_data: OTPVerifyRequest, db: Session = Depends(get_db)):
+    email = verify_data.email.strip()
+    user = db.query(User).filter(User.email == email).first()
+    
+    if not user:
+        print(f"DEBUG: User not found for email: '{email}'")
+        raise HTTPException(status_code=400, detail="User not found")
+        
+    if not user.otp or not user.otp_expiry:
+        print(f"DEBUG: No OTP record found for {email}")
+        raise HTTPException(status_code=400, detail="No OTP requested")
+    
+    print(f"DEBUG: Verifying OTP for {email}. Stored: '{user.otp}', Received: '{verify_data.otp}'")
+    
+    if user.otp != verify_data.otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+    
+    now = datetime.now()
+    if now > user.otp_expiry:
+        print(f"DEBUG: OTP expired for {email}. Now: {now}, Expiry: {user.otp_expiry}")
+        user.otp = None
+        user.otp_expiry = None
+        db.commit()
+        raise HTTPException(status_code=400, detail="OTP expired")
+    
+    # Valid OTP
+    user.otp = None
+    user.otp_expiry = None
+    db.commit()
     
     access_token = create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
